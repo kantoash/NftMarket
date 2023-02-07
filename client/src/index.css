@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer components {
+    .HeaderLink {
+        @apply font-semibold text-lg text-white hidden lg:inline cursor-pointer
+    }
+    .ConnectBtn {
+        @apply text-base text-white bg-Primary px-4 py-1.5 rounded-xl border-[1px] border-blue-300 
+    }
+    .CarsouelStyle {
+        box-shadow: 0 6px 50px rgb(99, 211, 240)
+      }
+      .CreateShadow {
+        box-shadow: 3px 6px 50px rgb(197, 68, 169);
+      }
+      .CreateInputDiv{
+        @apply flex flex-row items-center space-x-2 border-[1px] p-3 text-slate-200 bg-slate-300 bg-opacity-20 border-slate-300 rounded-xl
+      }
+      .Createinput {
+        @apply w-full bg-transparent outline-none rounded-md px-4 placeholder:text-xl font-semibold 
+      }
+}
