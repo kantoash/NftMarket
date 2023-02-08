@@ -59,8 +59,7 @@ function Characterpage() {
     BoughtItem();
   },[])
 
-  console.log(boughtItems);
-
+  
   useEffect(() => {
     const ItemsLoad = async () => {
       const ItemCount = await marketContract.getItemCount();
@@ -90,7 +89,7 @@ function Characterpage() {
     ItemsLoad();
   },[])
 
- 
+  console.log(boughtItems);
 
   if (loading) {
     return (
@@ -125,11 +124,11 @@ function Characterpage() {
         ))}
       </div>
       <h3 className="uppercase text-3xl text-gray-600 pt-12 pb-4">Bought Nft</h3>
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {boughtItems.length > 0 && boughtItems.map((item,id) => (
           <NftCard item={item} key={id} />
         ))}
-      </div> */}
+      </div>
     </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import "./index.css";
-import NFTMarket from "./artifacts/contracts/Marketplace.sol/Marketplace.json";
+import Marketplace from "./artifacts/contracts/Marketplace.sol/Marketplace.json";
 import NFT from "./artifacts/contracts/NFT.sol/NFT.json";
 import { useEffect } from "react";
 import { ethers } from "ethers";
@@ -43,7 +43,7 @@ function App() {
         setGlobalState("nftContract", nftContract);
         const marketContract = new ethers.Contract(
           marketAddress,
-          NFTMarket.abi,
+          Marketplace.abi,
           signer
         );
         

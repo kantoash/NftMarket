@@ -60,6 +60,7 @@ function Home() {
     ItemsLoad();
   },[])
 
+
   if (loading) {
     return (
       <h3 className=" bg-PrimaryDark h-screen w-screen overflow-x-hidden text-4xl animate-pulse p-10 text-blue-500">
