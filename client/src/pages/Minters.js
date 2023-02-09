@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { truncate, useGlobalState } from "../utils";
 
+
 function Minters() {
   const [marketContract] = useGlobalState("marketContract");
   const [Avatars, setAvatars] = useState([]);
@@ -39,6 +40,7 @@ function Minters() {
       </h3>
     );
   }
+  
   
   return (
     <div className="min-h-screen p-10 space-y-3 flex flex-col bg-PrimaryDark  ">

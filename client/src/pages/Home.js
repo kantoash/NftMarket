@@ -12,7 +12,7 @@ function Home() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState();
 
-    const ItemsLoad = async () => {
+  const ItemsLoad = async () => {
     const allItems = await marketContract.getItems();
     let Items = await Promise.all(
       allItems.map(async (item) => {
@@ -36,7 +36,9 @@ function Home() {
     )
     setItems(Items);
   }
- 
+
+  
+
   const CharacterLoad = async () => {
     // characterCount
     let allAvatars = await marketContract.getAvatars();
@@ -54,8 +56,9 @@ function Home() {
     )
     setAvatars(Avatars);
   };
-  
 
+
+  
 
   useEffect(() => {
     setLoading(true);

@@ -30,7 +30,7 @@ function Characterpage() {
     const allItems = await marketContract.getItems();
     let Items = await Promise.all(
       allItems.map(async (item) => {
-        if (item?.seller.toString() === character?.address.toString()) {
+        {
           const uri = await nftContract.tokenURI(item.tokenId);
           const response = await fetch(uri);
           const meta = await response.json();
@@ -53,39 +53,40 @@ function Characterpage() {
     setItems(Items);
   };
 
-  // const BoughtItem = async () => {
-  //   const filter = marketContract.filters.Bought();
-  //   const result = await marketContract.queryFilter(filter);
-  //   const purchases = await Promise.all(
-  //     result.map(async (item) => {
-  //       let temp = item.args;
-  //       const uri = await nftContract.tokenURI(temp?.tokenId);
-  //       const response = await fetch(uri);
-  //       const metadata = await response.json();
-  //       let purchaseItem = {};
-  //       if (temp?.buyer === character?.address) {
-  //         purchaseItem = {
-  //           name: metadata?.name,
-  //           description: metadata?.description,
-  //           price: metadata?.price,
-  //           image: metadata?.image,
-  //           sold: true,
-  //           buyer: temp?.buyer,
-  //           itemId: temp?.itemId,
-  //           seller: temp?.seller,
-  //           tokenId: temp?.tokenId,
-  //         };
-  //       }
-  //       return purchaseItem;
-  //     })
-  //   );
-  //   setBoughtItems(purchases);
-  // };
+  const BoughtItem = async () => {
+    const filter = marketContract.filters.Bought();
+    const result = await marketContract.queryFilter(filter);
+    const purchases = await Promise.all(
+      result.map(async (item) => {
+        let temp = item.args;
+        const uri = await nftContract.tokenURI(temp?.tokenId);
+        const response = await fetch(uri);
+        const metadata = await response.json();
+        let purchaseItem = {};
+        {
+          purchaseItem = {
+            name: metadata?.name,
+            description: metadata?.description,
+            price: metadata?.price,
+            image: metadata?.image,
+            sold: true,
+            buyer: temp?.buyer,
+            itemId: temp?.itemId,
+            seller: temp?.seller,
+            tokenId: temp?.tokenId,
+          };
+        }
+        return purchaseItem;
+      })
+    );
+    setBoughtItems(purchases);
+  };
 
   useEffect(() => {
     setLoading(true);
     CharacterLoad();
     ItemsLoad();
+    BoughtItem();
     setLoading(false);
   }, [marketContract, nftContract]);
 
@@ -98,6 +99,7 @@ function Characterpage() {
     );
   }
 
+  console.log(boughtItems);
   return  (
     <div className=" h-fit flex flex-col items-center space-y-9  pb-28  overflow-x-hidden">
       <div>
@@ -116,16 +118,17 @@ function Characterpage() {
     <div className="py-16 flex flex-col justify-center items-center max-w-6xl m-6 ">
     <h3 className="uppercase text-3xl text-gray-600 pb-4 ">Offered Nft</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8   ">
-        {items.length > 0 && items.map((item,id) => (
+        {items.map((item,id) => (
+          (item?.seller.toString() === character?.address.toString()) &&
           <NftCard item={item} key={id} />
         ))}
       </div>
       <h3 className="uppercase text-3xl text-gray-600 pt-12 pb-4">Bought Nft</h3>
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {boughtItems.length > 0 && boughtItems.map((item,id) => (
-          <NftCard item={item} key={id} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {boughtItems.map((item,id) => (
+          (item?.buyer.toString() === character?.address.toString()) &&  <NftCard item={item} key={id} />
         ))}
-      </div> */}
+      </div>
     </div>
     </div>
   );
