@@ -10,56 +10,61 @@ function Home() {
   const [nftContract] = useGlobalState("nftContract");
   const [Avatars, setAvatars] = useState([]);
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState();
 
-  useEffect(() => {
-    const CharacterLoad = async () => {
-      // characterCount
-      const CharacterCount = await marketContract.getAvatarCount();
-      let allAvatars = [];
-      for (let idx = 1; idx <= CharacterCount; idx++) {
-        const Avatar = await marketContract.getAvatar(idx);
-        let item = {
-          id: idx,
-          address: Avatar?.Address,
-          name: Avatar?.name,
-          description: Avatar?.description,
-          image: Avatar?.image,
-        };
-        allAvatars.push(item);
-      }
-      setAvatars(allAvatars);
-    };
-    CharacterLoad();
-  }, []);
-
-  useEffect(() => {
     const ItemsLoad = async () => {
-      const ItemCount = await marketContract.getItemCount();
-      let allItems = [];
-      for (let idx = 1; idx <= ItemCount; idx++) {
-        let Item = await marketContract.getItem(idx);
-        const uri = await nftContract.tokenURI(Item.tokenId);
+    const allItems = await marketContract.getItems();
+    let Items = await Promise.all(
+      allItems.map(async (item) => {
+        const uri = await nftContract.tokenURI(item.tokenId);
         const response = await fetch(uri);
         const meta = await response.json();
-        let EditItem = {
+
+        let temp = {
           name: meta.name,
           description: meta.description,
           price: meta.price,
           image: meta.image,
-          seller: Item.seller,
-          sold: Item.sold,
-          tokenId: Item.tokenId,
-          itemId: Item.itemId
+          seller: item.seller,
+          sold: item.sold,
+          tokenId: item.tokenId,
+          itemId: item.itemId   
         }
-        allItems.push(EditItem);
-      }
-      setItems(allItems);
-      setLoading(false);
-    }
-    ItemsLoad();
-  },[])
 
+        return temp;
+      })
+    )
+    setItems(Items);
+  }
+ 
+  const CharacterLoad = async () => {
+    // characterCount
+    let allAvatars = await marketContract.getAvatars();
+    let Avatars = await Promise.all(
+      allAvatars.map((avatar) => {
+        let temp = {
+          id: avatar.id,
+          name: avatar.name,
+          description: avatar.description,
+          address: avatar.Address,
+          image: avatar.image
+        }
+        return temp;
+      })
+    )
+    setAvatars(Avatars);
+  };
+  
+
+
+  useEffect(() => {
+    setLoading(true);
+    CharacterLoad();
+    ItemsLoad();
+    setLoading(false);
+  }, [marketContract, nftContract]);
+
+  
 
   if (loading) {
     return (
@@ -69,6 +74,7 @@ function Home() {
     );
   }
   
+
   return (
     <main className="flex flex-col items-center  space-y-14 bg-PrimaryDark pt-10 pb-28 overflow-x-hidden ">
       <div className="flex flex-col items-center justify-center space-y-4 py-6">

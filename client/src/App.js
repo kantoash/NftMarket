@@ -9,10 +9,8 @@ import { setGlobalState, useGlobalState } from "./utils";
 import { Footer, Header } from "./component/index";
 
 function App() {
-  const marketAddress = "0xe430b30ad78cd6c8222ba818bdc1d110ff05ee46";
-  const nftContractAddress = "0x545de0c1eb3dff2b89bc0b6455abca37ce70ae64";
-  const [marketContract] = useGlobalState('marketContract')
-  const [nftContract] = useGlobalState('nftContract')
+  const marketAddress = "0x4a932121C00CDaB0cd2C9250E99C1d529a5556D5";
+  const nftContractAddress = "0xB98AbCE4F51bAc20b3ff9494891eFA31BdC2bcb7";
 
   useEffect(() => {
     const web3Handler = async () => {
@@ -46,7 +44,7 @@ function App() {
           Marketplace.abi,
           signer
         );
-        
+
         setGlobalState("marketContract", marketContract);
       } catch (error) {
         console.log("app loader error", error);
@@ -54,7 +52,6 @@ function App() {
     };
     web3Handler();
   }, []);
-  
 
   return (
     <div>
@@ -63,8 +60,10 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/Create" element={<Create />} />
         <Route path="/Character" element={<Character />} />
-        <Route path="/Characterpage/:id" element={<Characterpage />} />
-        <Route path="/Minters" element={<Minters />} /> 
+        <Route path="/Minters" element={<Minters />} />
+        <Route path="/Characterpage/:id" element={<Characterpage />} /> 
+        {/*
+        */}
       </Routes>
       <Footer />
     </div>

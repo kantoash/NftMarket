@@ -21,13 +21,13 @@ async function main() {
   const Marketplace = await ethers.getContractFactory("Marketplace");
   const marketplace = await Marketplace.deploy(ethers.utils.parseEther('0.05'));
   await marketplace.deployed(); //deploy the NFTMarket contract
-  console.log("market Address", marketplace.address);// 0xe430B30AD78cD6C8222ba818bDc1D110FF05EE46
+  console.log("market Address", marketplace.address);// 0x4a932121C00CDaB0cd2C9250E99C1d529a5556D5
 
   const NFT = await ethers.getContractFactory("NFT");
   const nft = await NFT.deploy(marketplace.address);
   await nft.deployed(); //deploy the NFT contract
-  console.log("Nft Address", nft.address); // 0x545De0c1eb3DfF2b89BC0B6455ABcA37ce70aE64
-   
+  console.log("Nft Address", nft.address); // 0xB98AbCE4F51bAc20b3ff9494891eFA31BdC2bcb7
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere

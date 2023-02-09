@@ -33,13 +33,11 @@ function AvatarRow({ Avatars }) {
       </div>
       {/* movie list */}
       <div ref={rowRef} className="flex flex-row items-center overflow-x-scroll  scrollbar-hide  ">
-        {Avatars.map((Avatar, id) => (
+        {Avatars.map((Avatar) => (
           <div className="flex flex-col items-center justify-center space-y-1 min-w-fit p-3 m-3 cursor-pointer ">
             <div onClick={() => navigate("/Characterpage/" + Avatar?.id)}>
               <img
-                src={`https://gateway.pinata.cloud/ipfs//${Avatar?.image.substring(
-                  7
-                )}`}
+                src={`https://gateway.pinata.cloud/ipfs//${Avatar?.image}`}
                 className="h-32 w-32 object-fill rounded-full cursor-pointer "
               />
             </div>

@@ -18,7 +18,7 @@ function NftCard({ item }) {
   return (
     <div className=' flex flex-col justify-center border-[1px]
      bg-white p-2 border-blue-400 w-96 rounded-xl cursor-pointer'>
-        <img src={`https://gateway.pinata.cloud/ipfs//${item?.image.substring(7)}`} className="h-72 w-72 object-cover rounded mx-auto" /> 
+        <img src={`https://gateway.pinata.cloud/ipfs//${item?.image}`} className="h-72 w-72 object-cover rounded mx-auto" /> 
         <div className='p-3 flex flex-col text-gray-600 '>
             <h3 className='text-3xl font-semibold'>{item?.name}</h3>
             <p className='truncate text-base font-semibold '>{item?.description}</p>

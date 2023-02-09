@@ -8,15 +8,16 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract Marketplace is ReentrancyGuard {
     // Variables
     address payable owner; // the account that receives fees
-    uint public fee; // the fee percentage on sales
-    uint public itemCount;
-    uint public AvatarCount;
+    uint fee; // the fee percentage on sales
+    uint itemCount;
+    uint AvatarCount;
 
-    mapping(uint => Item) public items;
-    mapping(uint => Avatar) public AvatarList;
+    Item[] Items;
+    Avatar[] Avatars;
     mapping(address => bool) public AvatarExist;
 
     struct Avatar {
+        uint id;
         address Address;
         string name;
         string description;
@@ -63,12 +64,20 @@ contract Marketplace is ReentrancyGuard {
         return AvatarCount;
     }
 
+    function getItems() public view returns (Item[] memory) {
+        return Items;
+    }
+
     function getItem(uint _id) public view returns (Item memory) {
-        return items[_id];
+        return Items[_id];
+    }
+
+    function getAvatars() public view returns (Avatar[] memory) {
+        return Avatars;
     }
 
     function getAvatar(uint _id) public view returns (Avatar memory) {
-        return AvatarList[_id];
+        return Avatars[_id];
     }
 
     function getAvatarExist(address _address) public view returns (bool) {
@@ -85,13 +94,16 @@ contract Marketplace is ReentrancyGuard {
         string memory _description,
         string memory _AvatarImage
     ) public {
-        AvatarCount++;
-        Avatar storage avatar = AvatarList[AvatarCount];
+        require(!AvatarExist[msg.sender],"Already Avatar Exist");
+        Avatar memory avatar;
         AvatarExist[msg.sender] = true;
+        avatar.id = AvatarCount;
         avatar.Address = msg.sender;
         avatar.name = _AvatarName;
         avatar.description = _description;
         avatar.image = _AvatarImage;
+        Avatars.push(avatar);
+        AvatarCount++;
     }
 
     // Make item to offer on the marketplace
@@ -102,21 +114,23 @@ contract Marketplace is ReentrancyGuard {
     ) external payable nonReentrant {
         require(msg.value >= fee, "Need to pay Fee");
         require(_price > 0, "Price must be greater than zero");
-        require(AvatarExist[msg.sender], "make sure create an avatar");
-        // increment itemCount
-        itemCount++;
-
-        // transfer nft
-        IERC721(_nft).transferFrom(msg.sender, address(this), _tokenId);
 
         // add new item to items mapping
-        Item storage nftitem = items[itemCount];
+        Item memory nftitem;
         nftitem.itemId = itemCount;
         nftitem.nftAddress = _nft;
         nftitem.tokenId = _tokenId;
         nftitem.price = _price;
         nftitem.seller = payable(msg.sender);
         nftitem.sold = false;
+
+        Items.push(nftitem);
+
+        // increment itemCount
+        itemCount++;
+
+        // transfer nft
+        IERC721(_nft).transferFrom(msg.sender, address(this), _tokenId);
 
         // emit Offered event
         emit Offered(itemCount, _nft, _tokenId, _price, msg.sender);
@@ -125,7 +139,7 @@ contract Marketplace is ReentrancyGuard {
     }
 
     function purchaseItem(uint _itemId) external payable nonReentrant {
-        Item storage item = items[_itemId];
+        Item storage item = Items[_itemId];
         require(_itemId > 0 && _itemId <= itemCount, "item doesn't exist");
         require(
             msg.value >= item.price,
