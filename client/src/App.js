@@ -1,11 +1,9 @@
 import "./index.css";
-import Marketplace from "./artifacts/contracts/Marketplace.sol/Marketplace.json";
-import NFT from "./artifacts/contracts/NFT.sol/NFT.json";
 import { useEffect } from "react";
 import { ethers } from "ethers";
 import { Route, Routes } from "react-router-dom";
 import { Home, Create, Character, Characterpage, Minters } from "./pages/index";
-import { setGlobalState, useGlobalState } from "./utils";
+import { setGlobalState, useGlobalState, Marketplace, NFT } from "./utils";
 import { Footer, Header } from "./component/index";
 
 function App() {
@@ -62,8 +60,6 @@ function App() {
         <Route path="/Character" element={<Character />} />
         <Route path="/Minters" element={<Minters />} />
         <Route path="/Characterpage/:id" element={<Characterpage />} /> 
-        {/*
-        */}
       </Routes>
       <Footer />
     </div>
