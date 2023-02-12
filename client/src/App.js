@@ -1,7 +1,5 @@
 import "./index.css";
-import { useEffect, useState } from "react";
-import Marketplace from "./artifacts/contracts/Marketplace.sol/Marketplace.json";
-import NFT from "./artifacts/contracts/NFT.sol/NFT.json";
+import { useEffect } from "react";
 import { ethers } from "ethers";
 import { Route, Routes } from "react-router-dom";
 import {
@@ -11,7 +9,7 @@ import {
   Characterpage,
   NftPage,
 } from "./pages/index";
-import { setGlobalState } from "./utils";
+import { setGlobalState, NFT, Marketplace } from "./utils";
 import { Footer, Header } from "./component/index";
 
 function App() {
