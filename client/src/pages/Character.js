@@ -34,7 +34,7 @@ function Character() {
           },
         });
 
-        const imageURL = `${response.data.IpfsHash}`;
+        const imageURL = `ipfs//${response.data.IpfsHash}`;
         setImageUrl(imageURL);
         console.log("image uploaded", imageURL);
       } catch (error) {
@@ -51,7 +51,7 @@ function Character() {
     reset();
     navigate('/');
     } catch (error) {
-      console.log("Character Create error", error);
+      console.log("Character Create error", error.message.toString());
     }
   }
 

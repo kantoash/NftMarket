@@ -70,14 +70,6 @@ function Header() {
                 >
                   Character
                 </div>
-                <div
-                  onClick={() => {
-                    navigate("/Minters");
-                  }}
-                  className="cursor-pointer"
-                >
-                  Minters
-                </div>
               </div>
             </motion.div>
           )}
@@ -134,14 +126,6 @@ function Header() {
             className="cursor-pointer"
           >
             Character
-          </div>
-          <div
-            onClick={() => {
-              navigate("/Minters");
-            }}
-            className="cursor-pointer"
-          >
-            Minters
           </div>
         </div>
         <div>

@@ -2,6 +2,8 @@ import { createGlobalState } from 'react-hooks-global-state'
 
 const { setGlobalState, getGlobalState, useGlobalState } = createGlobalState({
     connectedAccount: '',
+    DonateProject: 'scale-0',
+    BidItem: 'scale-0',
     nftContract: {},
     marketContract: {}
 })
@@ -18,6 +20,98 @@ const Marketplace = {
       ],
       "stateMutability": "nonpayable",
       "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "itemId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "accepter",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "Bidder",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "BidAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timeStamp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "accept",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "revoke",
+          "type": "bool"
+        }
+      ],
+      "name": "AcceptBidEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "itemId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "Bidder",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "BidAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timeStamp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "accept",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "revoke",
+          "type": "bool"
+        }
+      ],
+      "name": "BidEvent",
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -68,6 +162,37 @@ const Marketplace = {
         {
           "indexed": false,
           "internalType": "uint256",
+          "name": "AvatarId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "donater",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timeStamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "DonateEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
           "name": "itemId",
           "type": "uint256"
         },
@@ -97,6 +222,43 @@ const Marketplace = {
         }
       ],
       "name": "Offered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "itemId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "Bidder",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "BidAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timeStamp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "revoke",
+          "type": "bool"
+        }
+      ],
+      "name": "RevokeBidEvent",
       "type": "event"
     },
     {
@@ -145,6 +307,99 @@ const Marketplace = {
       "inputs": [
         {
           "internalType": "uint256",
+          "name": "ItemId",
+          "type": "uint256"
+        }
+      ],
+      "name": "bid",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "ItemId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "BidId",
+          "type": "uint256"
+        }
+      ],
+      "name": "bidAccept",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "bids",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "itemId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address payable",
+          "name": "Bidder",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "BidAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timeStamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "accept",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "revoke",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "AvatarId",
+          "type": "uint256"
+        }
+      ],
+      "name": "donate",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
           "name": "_id",
           "type": "uint256"
         }
@@ -159,7 +414,12 @@ const Marketplace = {
               "type": "uint256"
             },
             {
-              "internalType": "address",
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address payable",
               "name": "Address",
               "type": "address"
             },
@@ -231,7 +491,12 @@ const Marketplace = {
               "type": "uint256"
             },
             {
-              "internalType": "address",
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address payable",
               "name": "Address",
               "type": "address"
             },
@@ -252,6 +517,57 @@ const Marketplace = {
             }
           ],
           "internalType": "struct Marketplace.Avatar[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_ItemId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBid",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "itemId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address payable",
+              "name": "Bidder",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "BidAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timeStamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "accept",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "revoke",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct Marketplace.Bid[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -415,6 +731,24 @@ const Marketplace = {
       "name": "purchaseItem",
       "outputs": [],
       "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "ItemId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "BidId",
+          "type": "uint256"
+        }
+      ],
+      "name": "revoke",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ],

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from "react-responsive-carousel";
 import { useGlobalState } from "../utils";
-import NftCard from "../component/NftCard";
-import AvatarRow from "../component/AvatarRow";
+import { AvatarRow, NftCard } from "../component/index";
 
 function Home() {
   const [marketContract] = useGlobalState("marketContract");
@@ -36,8 +35,6 @@ function Home() {
     )
     setItems(Items);
   }
-
-  
 
   const CharacterLoad = async () => {
     // characterCount

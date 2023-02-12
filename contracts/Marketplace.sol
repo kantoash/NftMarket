@@ -14,14 +14,29 @@ contract Marketplace is ReentrancyGuard {
 
     Item[] Items;
     Avatar[] Avatars;
+
+    mapping(uint => Bid[]) public bids; // itemId => Bid[]
     mapping(address => bool) public AvatarExist;
+
+    // bid function
+    // donate function
 
     struct Avatar {
         uint id;
-        address Address;
+        uint amount;
+        address payable Address;
         string name;
         string description;
         string image;
+    }
+
+    struct Bid {
+        uint itemId;
+        address payable Bidder;
+        uint BidAmount;
+        uint timeStamp;
+        bool accept;
+        bool revoke;
     }
 
     struct Item {
@@ -52,6 +67,39 @@ contract Marketplace is ReentrancyGuard {
         address indexed buyer
     );
 
+    event BidEvent(
+        uint itemId,
+        address Bidder,
+        uint BidAmount,
+        uint timeStamp,
+        bool accept,
+        bool revoke
+    );
+
+    event AcceptBidEvent(
+        uint itemId,
+        address accepter,
+        address Bidder,
+        uint BidAmount,
+        uint timeStamp,
+        bool accept,
+        bool revoke
+    );
+
+    event RevokeBidEvent(
+        uint itemId,
+        address Bidder,
+        uint BidAmount,
+        uint timeStamp,
+        bool revoke
+    );
+    event DonateEvent(
+        uint AvatarId,
+        address donater,
+        uint amount,
+        uint timeStamp
+    );
+
     function getFee() public view returns (uint) {
         return fee;
     }
@@ -80,6 +128,10 @@ contract Marketplace is ReentrancyGuard {
         return Avatars[_id];
     }
 
+    function getBid(uint _ItemId) public view returns(Bid[] memory){
+        return bids[_ItemId];
+    }
+    
     function getAvatarExist(address _address) public view returns (bool) {
         return AvatarExist[_address];
     }
@@ -94,16 +146,29 @@ contract Marketplace is ReentrancyGuard {
         string memory _description,
         string memory _AvatarImage
     ) public {
-        require(!AvatarExist[msg.sender],"Already Avatar Exist");
+        require(!AvatarExist[msg.sender], "Already Avatar Exist");
         Avatar memory avatar;
         AvatarExist[msg.sender] = true;
         avatar.id = AvatarCount;
-        avatar.Address = msg.sender;
+        avatar.Address = payable(msg.sender);
         avatar.name = _AvatarName;
         avatar.description = _description;
         avatar.image = _AvatarImage;
         Avatars.push(avatar);
         AvatarCount++;
+    }
+
+    function donate(uint AvatarId) public payable {
+        Avatar storage avatar = Avatars[AvatarId];
+        require(avatar.id >= 0, "Not present");
+        require(msg.value > 0, "Donate valid amt");
+        require(msg.sender != avatar.Address, "Not owner can donate itself");
+
+        avatar.amount += msg.value;
+
+        emit DonateEvent(AvatarId, msg.sender, msg.value, block.timestamp);
+
+        payTo(avatar.Address, msg.value);
     }
 
     // Make item to offer on the marketplace
@@ -140,7 +205,7 @@ contract Marketplace is ReentrancyGuard {
 
     function purchaseItem(uint _itemId) external payable nonReentrant {
         Item storage item = Items[_itemId];
-        require(_itemId > 0 && _itemId <= itemCount, "item doesn't exist");
+        require(_itemId >= 0 && _itemId <= itemCount, "item doesn't exist");
         require(
             msg.value >= item.price,
             "not enough ether to cover item price and market fee"
@@ -149,7 +214,7 @@ contract Marketplace is ReentrancyGuard {
 
         // update item to sold
         item.sold = true;
-
+        rePayBid(_itemId);
         // pay seller and feeAccount
         payTo(item.seller, item.price);
 
@@ -169,6 +234,96 @@ contract Marketplace is ReentrancyGuard {
             item.seller,
             msg.sender
         );
+    }
+
+    function rePayBid(uint ItemId) internal {
+        if (bids[ItemId].length > 0) {
+            for (uint i = 0; i < bids[ItemId].length; i++) {
+                Bid memory CurrBid = bids[ItemId][i];
+                if (!CurrBid.accept) {
+                    payTo(CurrBid.Bidder, CurrBid.BidAmount);
+                }
+            }
+        }
+    }
+
+    function bid(uint ItemId) public payable {
+        require(ItemId >= 0 && ItemId <= itemCount, "item doesn't exist");
+        require(msg.value > 0, "BidAmt must be valid");
+
+        Bid memory tempbid;
+
+        tempbid.itemId = ItemId;
+        tempbid.Bidder = payable(msg.sender);
+        tempbid.BidAmount += msg.value;
+        tempbid.timeStamp = block.timestamp;
+        tempbid.accept = false;
+        tempbid.revoke = false;
+
+        bids[ItemId].push(tempbid);
+
+        emit BidEvent(ItemId, msg.sender, msg.value, block.timestamp, false, false);
+    }
+
+    function revoke(uint ItemId, uint BidId) public {
+        Bid storage tempBid = bids[ItemId][BidId];
+        require(ItemId >= 0 && ItemId <= itemCount, "item doesn't exist");
+        require(msg.sender == tempBid.Bidder , "Only bidder");
+        require(!tempBid.accept, "Only not accepted");
+        
+        tempBid.revoke = true;
+
+        emit RevokeBidEvent(
+            ItemId,
+            msg.sender,
+            tempBid.BidAmount,
+            block.timestamp,
+            true
+        );
+
+        payTo(tempBid.Bidder, tempBid.BidAmount);
+    }
+
+    function bidAccept(uint ItemId, uint BidId) public payable {
+        Bid storage tempBid = bids[ItemId][BidId];
+         Item storage item = Items[ItemId];
+
+        require(ItemId >= 0 && ItemId <= itemCount, "item doesn't exist");
+        require(msg.sender == item.seller, "Only seller");
+        require(!tempBid.revoke, "Not revoke is important");
+
+        tempBid.accept = true;
+
+        item.sold = true;
+        rePayBid(ItemId);
+        // transfer nft to buyer
+        IERC721(item.nftAddress).transferFrom(
+            address(this),
+            msg.sender,
+            item.tokenId
+        );
+
+        emit AcceptBidEvent(
+            ItemId,
+            msg.sender,
+            tempBid.Bidder,
+            tempBid.BidAmount,
+            block.timestamp,
+            true,
+            false
+        );
+
+        // emit Bought event
+        emit Bought(
+            ItemId,
+            item.nftAddress,
+            item.tokenId,
+            item.price,
+            msg.sender,
+            tempBid.Bidder
+        );
+
+        payTo(msg.sender, tempBid.BidAmount);
     }
 
     function payTo(address _owner, uint _amt) internal {

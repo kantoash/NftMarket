@@ -1,24 +1,15 @@
 import { ethers } from 'ethers'
 import React from 'react'
+import { useNavigate } from 'react-router'
 import { truncate, useGlobalState } from '../utils'
 
 function NftCard({ item }) {
-  const [marketContract] = useGlobalState('marketContract')
-
-    const BuyNft = async () => {
-      console.log("hello");
-      try {
-        const BuyTxn = await marketContract.purchaseItem(item?.itemId, {value: ethers.utils.parseEther(item?.price)});
-        await BuyTxn.wait();
-      } catch (error) {
-        console.log("Nft bought Successfully", error)
-      }
-    }
-
+  const navigate = useNavigate();
+  
   return (
-    <div className=' flex flex-col justify-center border-[1px]
+    <div onClick={() => navigate(`/NftPage/${item?.itemId}/${item?.name}`)} className=' flex flex-col justify-center border-[1px]
      bg-white p-2 border-blue-400 w-96 rounded-xl cursor-pointer'>
-        <img src={`https://gateway.pinata.cloud/ipfs//${item?.image}`} className="h-72 w-72 object-cover rounded mx-auto" /> 
+        <img src={`https://gateway.pinata.cloud/ipfs//${item?.image.substring(6)}`} className="h-72 w-72 object-cover rounded mx-auto" /> 
         <div className='p-3 flex flex-col text-gray-600 '>
             <h3 className='text-3xl font-semibold'>{item?.name}</h3>
             <p className='truncate text-base font-semibold '>{item?.description}</p>
@@ -34,11 +25,6 @@ function NftCard({ item }) {
                  : (<span className='font-semibold text-red-500 text-base'>Sold</span>)}</div>
             </div>
         </div>
-        {!item?.sold && 
-          <button className='text-2xl bg-blue-500 p-3 rounded-xl m-3 text-white hover:scale-105 duration-200 ease-out ' onClick={BuyNft}>
-            Buy 
-          </button>
-          }
     </div>
   )
 }

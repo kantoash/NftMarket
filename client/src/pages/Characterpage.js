@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import { useGlobalState } from "../utils";
+import { useNavigate, useParams } from "react-router";
+import { truncate, useGlobalState } from "../utils";
 import NftCard from "../component/NftCard";
+import { DonateBtn } from "../component";
+import { ethers } from "ethers";
+import Moment from "react-moment";
 
 function Characterpage() {
   const [marketContract] = useGlobalState("marketContract");
@@ -9,7 +12,9 @@ function Characterpage() {
   const [character, setCharacter] = useState({});
   const [items, setItems] = useState([]);
   const [boughtItems, setBoughtItems] = useState([]);
+  const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState();
+  const navigate = useNavigate();
   const { id } = useParams();
 
   const CharacterLoad = async () => {
@@ -21,7 +26,7 @@ function Characterpage() {
       name: avatar.name,
       description: avatar.description,
       address: avatar.Address,
-      image: avatar.image,
+      image: avatar.image.substring(6),
     };
     setCharacter(EditAvatars);
   };
@@ -81,16 +86,71 @@ function Characterpage() {
     );
     setBoughtItems(purchases);
   };
+  ///  event RevokeBidEvent(
+  //     uint itemId,
+  //     address Bidder,
+  //     uint BidAmount,
+  //     uint timeStamp,
+  //     bool revoke
+  // );
+  const LoadsBidEvent = async () => {
+    const PlaceBids = marketContract.filters.BidEvent();
+    const AcceptBids = marketContract.filters.AcceptBidEvent();
+    const RevokeBids = marketContract.filters.RevokeBidEvent();
+
+    let result = [];
+    const placebids = await marketContract.queryFilter(PlaceBids);
+    const acceptbids = await marketContract.queryFilter(AcceptBids);
+    const revokebids = await marketContract.queryFilter(RevokeBids);
+    result.push(...placebids, ...acceptbids, ...revokebids);
+
+    const allBids = await Promise.all(
+      result.map(async (bid) => {
+        let temp = bid.args;
+        const Item = await marketContract.getItem(temp?.itemId);
+        const uri = await nftContract.tokenURI(Item?.tokenId);
+        const response = await fetch(uri);
+        const metadata = await response.json();
+
+        let status = "";
+        if (temp?.accept) {
+          status = "accept";
+        } else if (temp?.revoke) {
+          status = "revoke";
+        } else {
+          status = "placeBid";
+        }
+
+        let Editbid = {
+          name: metadata?.name,
+          description: metadata?.description,
+          price: metadata?.price,
+          image: metadata?.image.substring(6),
+          itemId: temp?.itemId,
+          BidAmount: ethers.utils.formatEther(temp?.BidAmount),
+          Bidder: temp?.Bidder,
+          timestamp: temp?.timeStamp,
+          status: status,
+        };
+
+        return Editbid;
+      })
+    );
+    setBids(allBids);
+  };
 
   useEffect(() => {
     setLoading(true);
-    CharacterLoad();
-    ItemsLoad();
-    BoughtItem();
+    const loadCharacterpage = async () => {
+      await CharacterLoad();
+      await ItemsLoad();
+      await BoughtItem();
+      await LoadsBidEvent();
+    };
+    loadCharacterpage();
     setLoading(false);
   }, [marketContract, nftContract]);
 
-  
   if (loading) {
     return (
       <h3 className=" bg-PrimaryDark h-screen w-screen overflow-x-hidden text-4xl animate-pulse p-10 text-blue-500">
@@ -98,38 +158,84 @@ function Characterpage() {
       </h3>
     );
   }
-
-  console.log(boughtItems);
-  return  (
-    <div className=" h-fit flex flex-col items-center space-y-9  pb-28  overflow-x-hidden">
+  //    name: metadata?.name,
+  // description: metadata?.description,
+  // price: metadata?.price,
+  // image: metadata?.image.substring(6),
+  // itemId: temp?.itemId,
+  // BidAmount: temp?.BidAmount,
+  // Bidder: temp?.Bidder,
+  // timestamp: temp?.timeStamp,
+  // status: status,
+  return (
+    <div className=" h-full flex flex-col items-center space-y-9  pb-28  overflow-x-hidden">
       <div>
         <img
           src={`https://gateway.pinata.cloud/ipfs//${character?.image}`}
           className="h-80 w-full object-contain "
         />
       </div>
-     <div className="flex flex-col items-center ">
-     <h1 className="text-4xl tracking-wider pt-10">{character?.name}</h1>
-     <h1 className="text-lg text-gray-700 ">{character?.description}</h1>
-      <div className="text-gray-700 font-semibold text-xl pt-8">
-        {character?.address}
+      <div className="flex flex-col items-center  ">
+        <h1 className="text-4xl tracking-wider pt-10">{character?.name}</h1>
+        <h1 className="text-lg text-gray-700 pb-4">{character?.description}</h1>
+        <DonateBtn id={id} key={id} />
+        <div className="text-gray-700 font-semibold text-xl pt-8">
+          {character?.address}
+        </div>
       </div>
-     </div>
-    <div className="py-16 flex flex-col justify-center items-center max-w-6xl m-6 ">
-    <h3 className="uppercase text-3xl text-gray-600 pb-4 ">Offered Nft</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8   ">
-        {items.map((item,id) => (
-          (item?.seller.toString() === character?.address.toString()) &&
-          <NftCard item={item} key={id} />
+      <div>
+        {bids.map((bid, id) => (
+          <div
+            onClick={() => navigate(`/NftPage/${bid?.itemId}/${bid?.name}`)}
+            className={`flex flex-row space-x-5 items-center justify-between m-2 p-1.5 rounded-lg  cursor-pointer ${
+              bid?.status === "accept"
+                ? "bg-blue-300"
+                : bid?.status === "revoke"
+                ? "bg-red-300"
+                : "bg-green-300"
+            } `}
+          >
+            <div>
+              <img
+                src={`https://gateway.pinata.cloud/ipfs//${bid?.image}`}
+                className="h-16 w-20 object-fill rounded-lg"
+              />
+            </div>
+            <div
+              className={`text-lg text-gray-700 flex flex-row space-x-8 items-center justify-between `}
+            >
+              <h4>
+                <Moment fromNow>{bid?.timestamp}</Moment>
+              </h4>
+              <h3>{truncate(bid?.Bidder, 4, 4, 11)}</h3>
+              <h3>{bid?.BidAmount} Eth</h3>
+            </div>
+          </div>
         ))}
       </div>
-      <h3 className="uppercase text-3xl text-gray-600 pt-12 pb-4">Bought Nft</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {boughtItems.map((item,id) => (
-          (item?.buyer.toString() === character?.address.toString()) &&  <NftCard item={item} key={id} />
-        ))}
+
+      <div className="py-16 flex flex-col justify-center items-center max-w-6xl m-6 ">
+        <h3 className="uppercase text-3xl text-gray-600 pb-4 ">Offered Nft</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8   ">
+          {items.map(
+            (item, id) =>
+              item?.seller.toString() === character?.address.toString() && (
+                <NftCard item={item} key={id} />
+              )
+          )}
+        </div>
+        <h3 className="uppercase text-3xl text-gray-600 pt-12 pb-4">
+          Bought Nft
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {boughtItems.map(
+            (item, id) =>
+              item?.buyer.toString() === character?.address.toString() && (
+                <NftCard item={item} key={id} />
+              )
+          )}
+        </div>
       </div>
-    </div>
     </div>
   );
 }

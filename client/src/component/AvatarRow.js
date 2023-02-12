@@ -19,7 +19,6 @@ function AvatarRow({ Avatars }) {
       rowRef.current.scrollTo({left: scrollTo, behavior: "smooth"})
     }
   };
-
   
   return (
     <div className="flex flex-col items-center text-lg font-semibold  text-white overflow-x-hidden ">
@@ -37,7 +36,7 @@ function AvatarRow({ Avatars }) {
           <div className="flex flex-col items-center justify-center space-y-1 min-w-fit p-3 m-3 cursor-pointer ">
             <div onClick={() => navigate("/Characterpage/" + Avatar?.id)}>
               <img
-                src={`https://gateway.pinata.cloud/ipfs//${Avatar?.image}`}
+                src={`https://gateway.pinata.cloud/ipfs//${Avatar?.image.substring(6)}`}
                 className="h-32 w-32 object-fill rounded-full cursor-pointer "
               />
             </div>

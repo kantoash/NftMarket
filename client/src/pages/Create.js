@@ -37,7 +37,7 @@ function Create() {
             },
           });
   
-          const imageURL = `${response.data.IpfsHash}`;
+          const imageURL = `ipfs//${response.data.IpfsHash}`;
           setImageUrl(imageURL);
           console.log("image uploaded", imageURL);
         } catch (error) {

@@ -1,14 +1,22 @@
 import "./index.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Marketplace from "./artifacts/contracts/Marketplace.sol/Marketplace.json";
+import NFT from "./artifacts/contracts/NFT.sol/NFT.json";
 import { ethers } from "ethers";
 import { Route, Routes } from "react-router-dom";
-import { Home, Create, Character, Characterpage, Minters } from "./pages/index";
-import { setGlobalState, useGlobalState, Marketplace, NFT } from "./utils";
+import {
+  Home,
+  Create,
+  Character,
+  Characterpage,
+  NftPage,
+} from "./pages/index";
+import { setGlobalState } from "./utils";
 import { Footer, Header } from "./component/index";
 
 function App() {
-  const marketAddress = "0x4a932121C00CDaB0cd2C9250E99C1d529a5556D5";
-  const nftContractAddress = "0xB98AbCE4F51bAc20b3ff9494891eFA31BdC2bcb7";
+  const marketAddress = "0x79909f8D660948A72a2b1906800415dcB446C8aA";
+  const nftContractAddress = "0x35185A61969d50314727CfE2E3E7AF2D8E6Fd033";
 
   useEffect(() => {
     const web3Handler = async () => {
@@ -36,6 +44,7 @@ function App() {
           NFT.abi,
           signer
         );
+
         setGlobalState("nftContract", nftContract);
         const marketContract = new ethers.Contract(
           marketAddress,
@@ -58,8 +67,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/Create" element={<Create />} />
         <Route path="/Character" element={<Character />} />
-        <Route path="/Minters" element={<Minters />} />
-        <Route path="/Characterpage/:id" element={<Characterpage />} /> 
+        <Route path="/Characterpage/:id" element={<Characterpage />} />
+        <Route path="/NftPage/:itemId/:name" element={<NftPage />} />
       </Routes>
       <Footer />
     </div>
