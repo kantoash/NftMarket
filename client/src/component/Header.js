@@ -6,12 +6,13 @@ import {
 } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
-import { setGlobalState, truncate, useGlobalState } from "../utils";
+import { useGlobalContext } from '../utils/Context'
+import Alert from "./Alert";
 
 function Header() {
-  const [connectedAccount] = useGlobalState("connectedAccount");
   const [magnifyingOpen, setMagnifyingOpen] = useState(false);
   const [burgerMenu, setBurgerMenu] = useState(false);
+  const { connectedAccount, setConnectedAccount, truncate } = useGlobalContext();
   const navigate = useNavigate();
 
   const Connect = async () => {
@@ -22,7 +23,7 @@ function Header() {
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
-      setGlobalState("connectedAccount", accounts[0]?.toLowerCase());
+      setConnectedAccount(accounts[0]?.toLowerCase());
     } catch (error) {
       console.log("wallet connect error", error);
     }
@@ -103,7 +104,7 @@ function Header() {
           />
         </div>
       )}
-
+      <Alert/>
       {/* right */}
       <div className="flex flex-row items-center justify-center space-x-3 font-[500]">
         <MagnifyingGlassIcon

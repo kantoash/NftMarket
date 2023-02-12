@@ -1,16 +1,17 @@
 import React, { useState } from "react";
-import { useGlobalState, setGlobalState } from "../utils";
+import { useGlobalContext } from "../utils/Context";
 import { ArrowRightIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { ethers } from "ethers";
 
 function DonateBtn({ id }) {
+  const { setDonateProject } = useGlobalContext();
   return (
     <>
       <div
         className="cursor-pointer bg-green-500 rounded-full 
-        px-4 py-2 uppercase text-white text-xl active:scale-105 duration-200 ease-in-out
-         w-1/5 text-center"
-        onClick={() => setGlobalState("DonateProject", "scale-100")}
+        p-5 uppercase text-white text-xl active:scale-105 duration-200 ease-in-out
+        w-1/5 text-center "
+        onClick={() => setDonateProject("scale-100")}
       >
         Donate
       </div>
@@ -20,8 +21,7 @@ function DonateBtn({ id }) {
 }
 
 function DonateTemplate({ id }) {
-  const [marketContract] = useGlobalState('marketContract');
-  const [DonateProject] = useGlobalState("DonateProject");
+  const { DonateProject ,setDonateProject, marketContract, setShowAlert } = useGlobalContext();
   const [donateAmt, setDonateAmt] = useState("");
 
 
@@ -30,10 +30,16 @@ function DonateTemplate({ id }) {
     const DonateTxn = 
     await marketContract.donate(id, {value: ethers.utils.parseUnits(donateAmt.toString(),"ether")})
     await DonateTxn.wait()
-    console.log("successfully donate amount",DonateTxn)
-    setGlobalState('DonateProject', 'scale-0')
+    setShowAlert({
+      status: true,
+      message: `donate completed `,
+    });
+    setDonateProject('scale-0')
    } catch (error) {
-    console.log("donate amt error", error)
+    setShowAlert({
+      status: true,
+      message: `donate error ${error.message} `,
+    });
    }
   }
 
@@ -45,7 +51,7 @@ function DonateTemplate({ id }) {
       <div className="bg-PrimaryDark/90 CarsouelStyle rounded-xl md:w-3/4 lg:w-1/2 p-6 space-y-5">
         <div className="flex flex-row items-center justify-between pb-12 text-blue-400">
           <h1 className="text-3xl font-semibold  ">Donate</h1>
-          <XMarkIcon onClick={() => setGlobalState('DonateProject', 'scale-0')} className="h-8 p-1 rounded-full border-[1px] border-gray-600 cursor-pointer" />
+          <XMarkIcon onClick={() => setDonateProject('scale-0')} className="h-8 p-1 rounded-full border-[1px] border-gray-600 cursor-pointer" />
         </div>
 
         <div className="CreateInputDiv ">

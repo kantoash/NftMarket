@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { truncate, useGlobalState } from "../utils";
-import NftCard from "../component/NftCard";
-import { DonateBtn } from "../component";
+import { useGlobalContext } from "../utils/Context";
+import { DonateBtn, NftCard } from "../component";
 import { ethers } from "ethers";
 import Moment from "react-moment";
 
 function Characterpage() {
-  const [marketContract] = useGlobalState("marketContract");
-  const [nftContract] = useGlobalState("nftContract");
+  const { nftContract, marketContract, truncate } = useGlobalContext();
   const [character, setCharacter] = useState({});
   const [items, setItems] = useState([]);
   const [boughtItems, setBoughtItems] = useState([]);
@@ -86,13 +84,7 @@ function Characterpage() {
     );
     setBoughtItems(purchases);
   };
-  ///  event RevokeBidEvent(
-  //     uint itemId,
-  //     address Bidder,
-  //     uint BidAmount,
-  //     uint timeStamp,
-  //     bool revoke
-  // );
+
   const LoadsBidEvent = async () => {
     const PlaceBids = marketContract.filters.BidEvent();
     const AcceptBids = marketContract.filters.AcceptBidEvent();
@@ -158,15 +150,7 @@ function Characterpage() {
       </h3>
     );
   }
-  //    name: metadata?.name,
-  // description: metadata?.description,
-  // price: metadata?.price,
-  // image: metadata?.image.substring(6),
-  // itemId: temp?.itemId,
-  // BidAmount: temp?.BidAmount,
-  // Bidder: temp?.Bidder,
-  // timestamp: temp?.timeStamp,
-  // status: status,
+
   return (
     <div className=" h-full flex flex-col items-center space-y-9  pb-28  overflow-x-hidden">
       <div>
@@ -184,34 +168,37 @@ function Characterpage() {
         </div>
       </div>
       <div>
-        {bids.map((bid, id) => (
-          <div
-            onClick={() => navigate(`/NftPage/${bid?.itemId}/${bid?.name}`)}
-            className={`flex flex-row space-x-5 items-center justify-between m-2 p-1.5 rounded-lg  cursor-pointer ${
-              bid?.status === "accept"
-                ? "bg-blue-300"
-                : bid?.status === "revoke"
-                ? "bg-red-300"
-                : "bg-green-300"
-            } `}
-          >
-            <div>
-              <img
-                src={`https://gateway.pinata.cloud/ipfs//${bid?.image}`}
-                className="h-16 w-20 object-fill rounded-lg"
-              />
-            </div>
-            <div
-              className={`text-lg text-gray-700 flex flex-row space-x-8 items-center justify-between `}
-            >
-              <h4>
-                <Moment fromNow>{bid?.timestamp}</Moment>
-              </h4>
-              <h3>{truncate(bid?.Bidder, 4, 4, 11)}</h3>
-              <h3>{bid?.BidAmount} Eth</h3>
-            </div>
-          </div>
-        ))}
+        {bids.map(
+          (bid, id) =>
+            bid?.Bidder.toString() === character?.address.toString() && (
+              <div
+                onClick={() => navigate(`/NftPage/${bid?.itemId}/${bid?.name}`)}
+                className={`flex flex-row space-x-5 items-center justify-between m-2 p-1.5 rounded-lg  cursor-pointer ${
+                  bid?.status === "accept"
+                    ? "bg-blue-300"
+                    : bid?.status === "revoke"
+                    ? "bg-red-300"
+                    : "bg-green-300"
+                } `}
+              >
+                <div>
+                  <img
+                    src={`https://gateway.pinata.cloud/ipfs//${bid?.image}`}
+                    className="h-16 w-20 object-fill rounded-lg"
+                  />
+                </div>
+                <div
+                  className={`text-lg text-gray-700 flex flex-row space-x-8 items-center justify-between `}
+                >
+                  <h4>
+                    <Moment fromNow>{bid?.timestamp}</Moment>
+                  </h4>
+                  <h3>{truncate(bid?.Bidder, 4, 4, 11)}</h3>
+                  <h3>{bid?.BidAmount} Eth</h3>
+                </div>
+              </div>
+            )
+        )}
       </div>
 
       <div className="py-16 flex flex-col justify-center items-center max-w-6xl m-6 ">

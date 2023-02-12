@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from "react-responsive-carousel";
-import { useGlobalState } from "../utils";
 import { AvatarRow, NftCard } from "../component/index";
+import { useGlobalContext } from "../utils/Context";
 
 function Home() {
-  const [marketContract] = useGlobalState("marketContract");
-  const [nftContract] = useGlobalState("nftContract");
+  const { nftContract, marketContract } = useGlobalContext();
   const [Avatars, setAvatars] = useState([]);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState();

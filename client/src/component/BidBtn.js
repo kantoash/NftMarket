@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { useGlobalState, setGlobalState } from "../utils";
+import { useGlobalContext } from "../utils/Context";
 import { ArrowRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ethers } from "ethers";
 
 function BidBtn({ id }) {
+  const { setBidItem } = useGlobalContext();
   return (
     <>
       <div
         className="cursor-pointer bg-green-500 rounded-full 
         px-4 py-2 uppercase text-white text-xl active:scale-105 duration-200 ease-in-out  text-center"
-        onClick={() => setGlobalState("BidItem", "scale-100")}
+        onClick={() => setBidItem("scale-100")}
       >
         Bid
       </div>
@@ -19,8 +20,7 @@ function BidBtn({ id }) {
 }
 
 function BidTemplate({ id }) {
-  const [marketContract] = useGlobalState("marketContract");
-  const [BidItem] = useGlobalState("BidItem");
+  const { BidItem, setBidItem, marketContract, setShowAlert } = useGlobalContext();
   const [bidAmt, setBidAmt] = useState("");
 
   const Bid = async () => {
@@ -29,11 +29,17 @@ function BidTemplate({ id }) {
         value: ethers.utils.parseEther(bidAmt),
       });
       await BidTxn.wait();
-      console.log("successfully donate amount", BidTxn);
+      setShowAlert({
+        status: true,
+        message: `bid completed `,
+      });
       setBidAmt("")
-      setGlobalState("BidItem", "scale-0");
+      setBidItem("scale-0")
     } catch (error) {
-      console.log("donate amt error", error.message);
+      setShowAlert({
+        status: true,
+        message: `bid error ${error.message}`,
+      });
     }
   };
 
@@ -46,7 +52,7 @@ function BidTemplate({ id }) {
         <div className="flex flex-row items-center justify-between pb-12 text-blue-400">
           <h1 className="text-3xl font-semibold  ">Bid</h1>
           <XMarkIcon
-            onClick={() => setGlobalState("BidItem", "scale-0")}
+            onClick={() => setBidItem("scale-0")}
             className="h-8 p-1 rounded-full border-[1px] border-gray-600 cursor-pointer"
           />
         </div>

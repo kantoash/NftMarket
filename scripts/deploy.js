@@ -17,16 +17,16 @@ async function main() {
   // const nft = await NFT.deploy(marketAddress);
   // await nft.deployed(); //deploy the NFT contract
   // const nftContractAddress = nft.address;
-
+  
   const Marketplace = await ethers.getContractFactory("Marketplace");
   const marketplace = await Marketplace.deploy(ethers.utils.parseEther('0.05'));
   await marketplace.deployed(); //deploy the NFTMarket contract
-  console.log("market Address", marketplace.address);// 0xa91C43dCd2B9C8B7664Cc1Bcd16581a795255232
+  console.log("market Address", marketplace.address);// 0x16f335FE5872a7807377EaB68D2207088E1BAa30
 
   const NFT = await ethers.getContractFactory("NFT");
   const nft = await NFT.deploy(marketplace.address);
   await nft.deployed(); //deploy the NFT contract
-  console.log("Nft Address", nft.address); // 0xB93232b127cA6e5FCD2B74197a93BD1346921ba6
+  console.log("Nft Address", nft.address); // 0xA6A84B28023a803Ab6Ec3Ce592E2772010Fe6cee
 
 }
 

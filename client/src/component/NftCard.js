@@ -1,10 +1,10 @@
-import { ethers } from 'ethers'
 import React from 'react'
 import { useNavigate } from 'react-router'
-import { truncate, useGlobalState } from '../utils'
+import { useGlobalContext } from '../utils/Context'
 
 function NftCard({ item }) {
   const navigate = useNavigate();
+  const { truncate } = useGlobalContext()
   
   return (
     <div onClick={() => navigate(`/NftPage/${item?.itemId}/${item?.name}`)} className=' flex flex-col justify-center border-[1px]

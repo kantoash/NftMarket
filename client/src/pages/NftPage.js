@@ -2,14 +2,12 @@ import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import BidBtn from "../component/BidBtn";
-import { truncate, useGlobalState } from "../utils";
 import Moment from "react-moment";
+import { useGlobalContext } from "../utils/Context";
 
 function NftPage() {
   const { itemId } = useParams();
-  const [marketContract] = useGlobalState("marketContract");
-  const [nftContract] = useGlobalState("nftContract");
-  const [connectedAccount] = useGlobalState("connectedAccount");
+  const { nftContract, marketContract, truncate, connectedAccount, setShowAlert } = useGlobalContext();
   const [nftItem, setNftItem] = useState({});
   const [isSeller, setIsSeller] = useState();
   const [loading, setLoading] = useState();
@@ -72,9 +70,16 @@ function NftPage() {
       const BuyTxn = await marketContract.purchaseItem(itemId, {
         value: ethers.utils.parseEther(nftItem.price),
       });
+      setShowAlert({
+        status: true,
+        message: `nft Purchase in process... `,
+      });
       await BuyTxn.wait();
     } catch (error) {
-      console.log("nft Buy Error", error.message);
+      setShowAlert({
+        status: true,
+        message: `nft Purchase error: ${error.message.toString()} `,
+      });
     }
   };
 
@@ -82,8 +87,15 @@ function NftPage() {
     try {
       const RevokeTxn = await marketContract.revoke(itemId, bidId);
       await RevokeTxn.wait();
+      setShowAlert({
+        status: true,
+        message: `bid revoke completed `,
+      });
     } catch (error) {
-      console.log("bid revoke error", error.message);
+      setShowAlert({
+        status: true,
+        message: `bid revoke error ${error.message}`,
+      });
     }
   };
 
@@ -91,8 +103,15 @@ function NftPage() {
     try {
       const acceptTxn = await marketContract.bidAccept(itemId, bidId);
       await acceptTxn.wait();
+      setShowAlert({
+        status: true,
+        message: `bid accept completed `,
+      });
     } catch (error) {
-      console.log("bid accept error", error.message);
+      setShowAlert({
+        status: true,
+        message: `bid accept error ${error.message} `,
+      });
     }
   };
 
@@ -132,7 +151,7 @@ function NftPage() {
               <h3 className="text-xl text-gray-700  pb-0.5">Status:</h3>
               <div className="text-lg">
                 {!nftItem?.sold ? (
-                  <span className="font-normal bg-green-500 px-2 py-1 rounded-full text-white">
+                  <span className="font-normal bg-green-500 p-2 rounded-full text-white">
                     For sale
                   </span>
                 ) : (
@@ -161,7 +180,7 @@ function NftPage() {
           <div className="space-y-2 ">
             {bids.map((bid, id) => (
               <div
-                className={`flex flex-row items-center justify-between  pl-2 rounded-full text-gray-700 font-medium bg-gray-300 `}
+                className={`flex flex-row items-center justify-between p-2  rounded-full text-gray-700 font-medium bg-gray-300 `}
               >
                 <h4 className="text-sm">
                   <Moment fromNow>{bid?.timeStamp}</Moment>

@@ -2,19 +2,20 @@ import "./index.css";
 import { useEffect } from "react";
 import { ethers } from "ethers";
 import { Route, Routes } from "react-router-dom";
-import {
-  Home,
-  Create,
-  Character,
-  Characterpage,
-  NftPage,
-} from "./pages/index";
-import { setGlobalState, NFT, Marketplace } from "./utils";
+import { Home, Create, Character, Characterpage, NftPage } from "./pages/index";
 import { Footer, Header } from "./component/index";
+import {
+  NFT,
+  Marketplace,
+  marketAddress,
+  nftContractAddress,
+} from "./utils/index";
+import { useGlobalContext } from "./utils/Context";
+
 
 function App() {
-  const marketAddress = "0x79909f8D660948A72a2b1906800415dcB446C8aA";
-  const nftContractAddress = "0x35185A61969d50314727CfE2E3E7AF2D8E6Fd033";
+  const { setConnectedAccount, setNftContract, setMarketContract } =
+    useGlobalContext();
 
   useEffect(() => {
     const web3Handler = async () => {
@@ -25,7 +26,8 @@ function App() {
         const accounts = await window.ethereum.request({
           method: "eth_accounts",
         });
-        setGlobalState("connectedAccount", accounts[0]?.toLowerCase());
+
+        setConnectedAccount(accounts[0]?.toLowerCase());
         window.ethereum.on("chainChanged", () => {
           window.location.reload();
         });
@@ -36,21 +38,19 @@ function App() {
         });
         const Provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = Provider.getSigner();
-        setGlobalState("connectedAccount", accounts[0]?.toLowerCase());
+
         const nftContract = new ethers.Contract(
           nftContractAddress,
           NFT.abi,
           signer
         );
-
-        setGlobalState("nftContract", nftContract);
+        setNftContract(nftContract);
         const marketContract = new ethers.Contract(
           marketAddress,
           Marketplace.abi,
           signer
         );
-
-        setGlobalState("marketContract", marketContract);
+        setMarketContract(marketContract);
       } catch (error) {
         console.log("app loader error", error);
       }

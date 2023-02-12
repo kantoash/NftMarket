@@ -1,13 +1,5 @@
-import { createGlobalState } from 'react-hooks-global-state'
-
-const { setGlobalState, getGlobalState, useGlobalState } = createGlobalState({
-    connectedAccount: '',
-    DonateProject: 'scale-0',
-    BidItem: 'scale-0',
-    nftContract: {},
-    marketContract: {}
-})
-
+const marketAddress = "0x16f335FE5872a7807377EaB68D2207088E1BAa30";
+const nftContractAddress = "0xA6A84B28023a803Ab6Ec3Ce592E2772010Fe6cee";
 const Marketplace = {
   "abi": [
     {
@@ -752,7 +744,7 @@ const Marketplace = {
       "type": "function"
     }
   ],
-}
+};
 const NFT = {
   "abi": [
     {
@@ -1129,25 +1121,8 @@ const NFT = {
       "type": "function"
     }
   ],
-}
-
-export {
-    setGlobalState,
-    getGlobalState,
-    useGlobalState,
-    Marketplace,
-    NFT
-}
+};
 
 
-export const truncate = (text, startChars, endChars, maxLength) => {
-    if (text.length > maxLength) {
-      let start = text.substring(0, startChars)
-      let end = text.substring(text.length - endChars, text.length)
-      while (start.length + end.length < maxLength) {
-        start = start + '.'
-      }
-      return start + end
-    }
-    return text
-  }
+export { Marketplace, NFT, marketAddress, nftContractAddress };
+
