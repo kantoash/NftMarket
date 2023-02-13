@@ -1,5 +1,5 @@
-const marketAddress = "0x16f335FE5872a7807377EaB68D2207088E1BAa30";
-const nftContractAddress = "0xA6A84B28023a803Ab6Ec3Ce592E2772010Fe6cee";
+const marketAddress = "0xDefdCdf9AA0d5e7076b06704c7f0e6a1D59C01D1";
+const nftContractAddress = "0xf3335F3F8D1cCE92FE6FbE3ADa6319a17B3625bf";
 const Marketplace = {
   "abi": [
     {

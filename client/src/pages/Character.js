@@ -61,7 +61,9 @@ function Character() {
     } catch (error) {
       setShowAlert({
         status: true,
-        message: `${name} Character Created Error ${error.message.toString()} `,
+        message: `${name} Character Created Error ${error?.reason?.slice(
+          "execution reverted: ".length
+        )}} `,
       });
     }
   };

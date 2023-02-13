@@ -1,17 +1,23 @@
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import BidBtn from "../component/BidBtn";
 import Moment from "react-moment";
 import { useGlobalContext } from "../utils/Context";
 
 function NftPage() {
   const { itemId } = useParams();
-  const { nftContract, marketContract, truncate, connectedAccount, setShowAlert } = useGlobalContext();
+  const {
+    nftContract,
+    marketContract,
+    truncate,
+    connectedAccount,
+    setShowAlert,
+  } = useGlobalContext();
   const [nftItem, setNftItem] = useState({});
-  const [isSeller, setIsSeller] = useState();
   const [loading, setLoading] = useState();
   const [bids, setBids] = useState([]);
+  const navigate = useNavigate();
 
   const loadItem = async () => {
     const Item = await marketContract.getItem(itemId);
@@ -54,9 +60,6 @@ function NftPage() {
   const nftPageLoad = async () => {
     await loadItem();
     await loadBids();
-    setIsSeller(
-      connectedAccount.toLowerCase() === nftItem?.seller.toLowerCase()
-    );
   };
 
   useEffect(() => {
@@ -75,10 +78,13 @@ function NftPage() {
         message: `nft Purchase in process... `,
       });
       await BuyTxn.wait();
+      navigate("/");
     } catch (error) {
       setShowAlert({
         status: true,
-        message: `nft Purchase error: ${error.message.toString()} `,
+        message: `nft Purchase error: ${error?.reason?.slice(
+          "execution reverted: ".length
+        )} `,
       });
     }
   };
@@ -94,7 +100,9 @@ function NftPage() {
     } catch (error) {
       setShowAlert({
         status: true,
-        message: `bid revoke error ${error.message}`,
+        message: `bid revoke error ${error?.reason?.slice(
+          "execution reverted: ".length
+        )}`,
       });
     }
   };
@@ -107,10 +115,13 @@ function NftPage() {
         status: true,
         message: `bid accept completed `,
       });
+      navigate("/");
     } catch (error) {
       setShowAlert({
         status: true,
-        message: `bid accept error ${error.message} `,
+        message: `bid accept error ${error?.reason?.slice(
+          "execution reverted: ".length
+        )} `,
       });
     }
   };
@@ -124,7 +135,7 @@ function NftPage() {
   }
 
   return (
-    <div className="h-screen max-w-7xl mx-auto flex flex-col md:flex-row space-x-4 space-y-7 items-center justify-center ">
+    <div className="h-screen max-w-7xl mx-auto flex flex-col md:flex-row space-x-4 space-y-7 items-center justify-center pb-20 ">
       <div>
         <img
           src={`https://gateway.pinata.cloud/ipfs//${nftItem?.image}`}
@@ -155,7 +166,7 @@ function NftPage() {
                     For sale
                   </span>
                 ) : (
-                  <span className="font-normal bg-red-500 px-2 py-1 rounded-full text-white">
+                  <span className="font-normal bg-red-500 p-2 rounded-full text-white">
                     Sold
                   </span>
                 )}
@@ -179,41 +190,39 @@ function NftPage() {
         <div className="flex flex-col justify-between pt-6 p-4 space-y-5 ">
           <div className="space-y-2 ">
             {bids.map((bid, id) => (
-              <div
-                className={`flex flex-row items-center justify-between p-2  rounded-full text-gray-700 font-medium bg-gray-300 `}
+              !bid?.revoke && <div
+                className={`flex flex-row items-center justify-between py-2 px-3  rounded-full text-gray-700 font-medium bg-gray-300 space-x-5 `}
               >
                 <h4 className="text-sm">
                   <Moment fromNow>{bid?.timeStamp}</Moment>
                 </h4>
                 <h3>{truncate(bid?.Bidder, 4, 4, 11)}</h3>
                 <h3>{bid?.BidAmount} ETH</h3>
-                {isSeller && (
+                <div className="flex flex-row items-center space-x-2">
                   <button
                     onClick={() => {
                       accept(bid?.bidId);
                     }}
-                    className="pr-3 pl-6 py-1.5 bg-blue-300
-                     rounded-r-full  capitalize "
+                    className="p-2 py-1.5 bg-blue-300
+                     rounded-full  capitalize "
                   >
                     Accept
                   </button>
-                )}
-                {connectedAccount.toLowerCase() ===
-                  bid?.Bidder.toLowerCase() && (
-                  <div
+
+                  <button
                     onClick={() => {
                       revoke(bid?.bidId);
                     }}
-                    className="pr-3 pl-6 py-1.5 bg-blue-300
-                     rounded-r-full  capitalize "
+                    className="p-2 bg-red-300
+                     rounded-full  capitalize cursor-pointer "
                   >
                     Revoke
-                  </div>
-                )}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
-          {!isSeller && <BidBtn id={itemId} key={itemId} />}
+          {<BidBtn id={itemId} key={itemId} />}
         </div>
       </div>
     </div>

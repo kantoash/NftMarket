@@ -38,7 +38,9 @@ function BidTemplate({ id }) {
     } catch (error) {
       setShowAlert({
         status: true,
-        message: `bid error ${error.message}`,
+        message: `bid error ${error?.reason?.slice(
+          "execution reverted: ".length
+        )}`,
       });
     }
   };

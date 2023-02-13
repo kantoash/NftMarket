@@ -97,7 +97,9 @@ function Create() {
     } catch (error) {
       setShowAlert({
         status: true,
-        message: `nft Item created error ${error.message}`,
+        message: `nft Item created error ${error?.reason?.slice(
+          "execution reverted: ".length
+        )}`,
       });
     }
   };

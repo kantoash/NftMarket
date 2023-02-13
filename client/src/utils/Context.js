@@ -1152,7 +1152,7 @@ export const GlobalContextProvider = ({ children }) => {
     if (showAlert?.status) {
       const timer = setTimeout(() => {
         setShowAlert({ status: false, message: "" });
-      }, [3000]);
+      }, [5000]);
 
       return () => clearTimeout(timer);
     }

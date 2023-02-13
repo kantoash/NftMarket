@@ -53,9 +53,6 @@ function Home() {
     setAvatars(Avatars);
   };
 
-
-  
-
   useEffect(() => {
     setLoading(true);
     CharacterLoad();

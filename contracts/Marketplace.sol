@@ -160,9 +160,10 @@ contract Marketplace is ReentrancyGuard {
 
     function donate(uint AvatarId) public payable {
         Avatar storage avatar = Avatars[AvatarId];
+        require(avatar.Address != msg.sender, "self donate not works");
         require(avatar.id >= 0, "Not present");
         require(msg.value > 0, "Donate valid amt");
-        require(msg.sender != avatar.Address, "Not owner can donate itself");
+        require(msg.sender != avatar.Address, "owner can't donate itself");
 
         avatar.amount += msg.value;
 
@@ -248,8 +249,10 @@ contract Marketplace is ReentrancyGuard {
     }
 
     function bid(uint ItemId) public payable {
+        Item memory currItem = Items[ItemId];
         require(ItemId >= 0 && ItemId <= itemCount, "item doesn't exist");
         require(msg.value > 0, "BidAmt must be valid");
+        require(msg.sender != currItem.seller, "seller can't bid");
 
         Bid memory tempbid;
 
@@ -268,7 +271,7 @@ contract Marketplace is ReentrancyGuard {
     function revoke(uint ItemId, uint BidId) public {
         Bid storage tempBid = bids[ItemId][BidId];
         require(ItemId >= 0 && ItemId <= itemCount, "item doesn't exist");
-        require(msg.sender == tempBid.Bidder , "Only bidder");
+        require(msg.sender == tempBid.Bidder, "Only bidder");
         require(!tempBid.accept, "Only not accepted");
         
         tempBid.revoke = true;

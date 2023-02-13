@@ -151,6 +151,8 @@ function Characterpage() {
     );
   }
 
+  console.log(items);
+
   return (
     <div className=" h-full flex flex-col items-center space-y-9  pb-28  overflow-x-hidden">
       <div>
